@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 30%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 2px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+.submitLink {
+    background-color: transparent;
+    text-decoration: underline;
+    border: none;
+    color: blue;
+    cursor: pointer;
+    font-size:100%;
+    }
+submitLink:focus {
+    outline: none;
+
+    }
+.friend_action{
+    display: inline-block;
+}
+
+.logout{
+    position: absolute;
+    left: 500px;
+
+}
+</style>
+</head>
+<body>
+
+{% if request.session.login is True %}
+    <div class="logout">
+    <form action="logout" method="post">
+        {% csrf_token %}
+    <input type="submit" value="Logout" class="submitLink">
+    </form>
+    </div>
+{% endif %}
+
+<h1>Hello, {{ login_user.alias }}!</h1>
+
+{% if friend is not None %}
+    <h3>Here is the list of your friends:</h3>
+<div class="friend">
+    <table>
+        <tr>
+            <th>Alias</th>
+            <th>Action</th>
+        </tr>
+        {% for single_friend in friend %}
+            <tr>
+                <td>{{ single_friend.alias}}</td>
+                <td>
+                     <form action="user" method="post" class ='friend_action'>
+                        {% csrf_token %}
+                        <input type="hidden" name="show_id" value="{{ single_friend.id }}">
+                        <input type="submit"value="View Profile" class="submitLink">
+                     </form>
+
+                    <form action="remove_Friend" method="post" class ='friend_action'>
+                        {% csrf_token %}
+                        <input type="hidden" name="remove_friend_id" value="{{ single_friend.id }}">
+                        <input type="submit"value="Remove as Friend" class="submitLink">
+                    </form>
+
+
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+    {% else %}
+    <h3>You don't have friends yet.</h3>
+{% endif %}
+
+
+<div class="other_user">
+   <h3>Other Users not on your friend's list:</h3>
+    <table>
+        <tr>
+            <th>Alias</th>
+            <th>Action</th>
+        </tr>
+        {% if other_user %}
+        {% for user in other_user %}
+            <tr>
+            <td>
+                <form action="user" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="show_id" value="{{ user.id }}">
+                    <input type="submit"value="{{ user.alias }}" class="submitLink">
+                </form>
+            </td>
+            <td>
+                <form action="addFriend" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="friend_id" value="{{ user.id }}">
+                    <input type="submit"value="Add as Friend">
+                </form>
+            </td>
+            </tr>
+        {% endfor %}
+        {% endif %}
+    </table>
+</div>
+
+
+</body>
+</html>
